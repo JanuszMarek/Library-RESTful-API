@@ -14,6 +14,11 @@ namespace Library_RESTful_API.Models
             _context = context;
         }
 
+        public IEnumerable<Author> GetAuthors()
+        {
+            return _context.Authors.OrderBy(a => a.LastName).ThenBy(a => a.FirstName);
+        }
+
     }
 }
 

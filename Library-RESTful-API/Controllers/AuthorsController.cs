@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Library_RESTful_API.Controllers
 {
+    [Route("api/[controller]")]
+    [ApiController]
     public class AuthorsController : Controller
     {
         private ILibraryRepository _libraryRepository;
@@ -16,9 +18,11 @@ namespace Library_RESTful_API.Controllers
             _libraryRepository = libraryRepository;
         }
 
+        [HttpGet()]
         public IActionResult GetAuthors()
         {
-            return View();
+
+            return new JsonResult(_libraryRepository.GetAuthors());
         }
     }
 }

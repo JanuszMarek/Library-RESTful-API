@@ -7,6 +7,6 @@ namespace Library_RESTful_API.Models
 {
     public interface ILibraryRepository
     {
-
+        IEnumerable<Author> GetAuthors();
     }
 }

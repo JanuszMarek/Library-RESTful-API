@@ -32,7 +32,7 @@ namespace Library_RESTful_API
             services.AddDbContext<LibraryContext>(o => o.UseSqlServer(Configuration["ConnectionString:Library"]));
 
             //register repository DI
-            services.AddSingleton<ILibraryRepository, LibraryRepository>();
+            services.AddScoped<ILibraryRepository, LibraryRepository>();
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }
