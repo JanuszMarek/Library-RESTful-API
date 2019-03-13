@@ -12,6 +12,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Library_RESTful_API.Helpers;
+using Microsoft.AspNetCore.Http;
 
 namespace Library_RESTful_API
 {
@@ -47,7 +49,24 @@ namespace Library_RESTful_API
             else
             {
                 app.UseHsts();
+                app.UseExceptionHandler(appBuilder =>
+                {
+                    appBuilder.Run(async context =>
+                    {
+                        context.Response.StatusCode = 500;
+                        await context.Response.WriteAsync("An unexpected fault happend. Please try again later!");
+                    });
+                });
             }
+
+            //AUTOMAPPER Conf
+            AutoMapper.Mapper.Initialize(cfd =>
+            {
+                cfd.CreateMap<Author, Models.AuthorDto>()
+                    .ForMember(dest => dest.Name, opt => opt.MapFrom(src => $"{src.FirstName} {src.LastName}"))
+                    .ForMember(dest => dest.Age, opt => opt.MapFrom(src => src.DateOfBirth.GetCurentAge()));
+            });
+
 
             //seed data
             libraryContext.EnsureSeedDataForContext();
