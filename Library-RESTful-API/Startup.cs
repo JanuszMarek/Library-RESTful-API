@@ -62,9 +62,10 @@ namespace Library_RESTful_API
             //AUTOMAPPER Conf
             AutoMapper.Mapper.Initialize(cfd =>
             {
-                cfd.CreateMap<Author, Models.AuthorDto>()
+                cfd.CreateMap<Author, AuthorDto>()
                     .ForMember(dest => dest.Name, opt => opt.MapFrom(src => $"{src.FirstName} {src.LastName}"))
                     .ForMember(dest => dest.Age, opt => opt.MapFrom(src => src.DateOfBirth.GetCurentAge()));
+                cfd.CreateMap<Book, BookDto>();
             });
 
 

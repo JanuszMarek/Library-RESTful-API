@@ -7,8 +7,12 @@ namespace Library_RESTful_API.Models
 {
     public interface ILibraryRepository
     {
+        bool AuthorExists(Guid authorId);
         Author GetAuthor(Guid id);
         IEnumerable<Author> GetAuthors();
+        
 
+        Book GetBookForAuthor(Guid authorId, Guid bookId);
+        IEnumerable<Book> GetBooksForAuthor(Guid authorId);
     }
 }
