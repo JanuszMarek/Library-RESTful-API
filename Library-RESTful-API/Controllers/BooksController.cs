@@ -51,5 +51,31 @@ namespace Library_RESTful_API.Controllers
 
             return Ok(book);
         }
+
+        [HttpPost]
+        public IActionResult AddBookForAuthor(Guid authorId, [FromBody] Book book)
+        {
+            if(book == null)
+            {
+                return BadRequest();
+            }
+
+            if(!_libraryRepository.AuthorExists(authorId))
+            {
+                return NotFound();
+            }
+
+            _libraryRepository.AddBookForAuthor(authorId, book);
+
+            if (!_libraryRepository.Save())
+            {
+                throw new Exception("Creating an author failed on server");
+                //return StatusCode(500,"Unexpected problem occurs, try again later!")
+            }
+
+            var bookDto = AutoMapper.Mapper.Map<BookDto>(book);
+
+            return new JsonResult(bookDto);
+        }
     }
 }

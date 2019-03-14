@@ -57,7 +57,22 @@ namespace Library_RESTful_API.Models
             return _context.Books.Where(b => b.AuthorId == authorId).OrderBy(b => b.Title).ToList();
         }
 
+        public void AddBookForAuthor(Guid authorId, Book book)
+        {
+            var author = GetAuthor(authorId);
+            if (author != null)
+            {
+                // if there isn't an id filled out (ie: we're not upserting),
+                // we should generate one
+                if (book.Id == Guid.Empty)
+                {
+                    book.Id = Guid.NewGuid();
+                }
+                author.Books.Add(book);
+            }
+        }
 
+        //GENERALS
         public bool Save()
         {
             return (_context.SaveChanges() >= 0);

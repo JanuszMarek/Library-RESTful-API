@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -10,6 +11,7 @@ namespace Library_RESTful_API.Models
     public class Book
     {
         [Key]
+        [BindNever]
         public Guid Id { get; set; }
 
         [Required]
@@ -22,6 +24,7 @@ namespace Library_RESTful_API.Models
         [ForeignKey("AuthorId")]
         public Author Author { get; set; }
 
+        [BindNever]
         public Guid AuthorId { get; set; }
     }
 }

@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Library_RESTful_API.Helpers;
 using Library_RESTful_API.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace Library_RESTful_API.Controllers
 {
@@ -58,7 +59,9 @@ namespace Library_RESTful_API.Controllers
             return new JsonResult(authors);
         }
 
-        [HttpGet("{id}", Name = "GetAuthor")]
+        //do not working
+        //[HttpGet("{id}", Name = "GetAuthor")]
+        [HttpGet("{id}")]
         public IActionResult GetAuthor(Guid id)
         {
             var authorRepo = _libraryRepository.GetAuthor(id);
@@ -91,7 +94,8 @@ namespace Library_RESTful_API.Controllers
             }
 
             var authorDto = AutoMapper.Mapper.Map<AuthorDto>(author);
-
+            
+            //do not working
             //return CreatedAtRoute("GetAuthor", new { id = authorDto.Id });
 
             return new JsonResult(authorDto);
