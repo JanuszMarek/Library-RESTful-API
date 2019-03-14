@@ -10,9 +10,13 @@ namespace Library_RESTful_API.Models
         bool AuthorExists(Guid authorId);
         Author GetAuthor(Guid id);
         IEnumerable<Author> GetAuthors();
-        
+        void AddAuthor(Author author);
+
 
         Book GetBookForAuthor(Guid authorId, Guid bookId);
         IEnumerable<Book> GetBooksForAuthor(Guid authorId);
+
+
+        bool Save();
     }
 }

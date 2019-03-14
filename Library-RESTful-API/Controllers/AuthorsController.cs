@@ -52,18 +52,18 @@ namespace Library_RESTful_API.Controllers
                 return StatusCode(500, "An unexpected fault happend. Please try again later!");
             }
             */
-            
+
 
             var authors = AutoMapper.Mapper.Map<IEnumerable<AuthorDto>>(repoAuthors);
             return new JsonResult(authors);
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("{id}", Name = "GetAuthor")]
         public IActionResult GetAuthor(Guid id)
         {
             var authorRepo = _libraryRepository.GetAuthor(id);
 
-            if(authorRepo == null)
+            if (authorRepo == null)
             {
                 return NotFound();
             }
@@ -72,6 +72,29 @@ namespace Library_RESTful_API.Controllers
             var author = AutoMapper.Mapper.Map<AuthorDto>(authorRepo);
 
             return new JsonResult(author);
+        }
+
+        [HttpPost]
+        public IActionResult CreateAuthor([FromBody] Author author)
+        {
+            if(author == null)
+            {
+                return BadRequest();
+            }
+
+            _libraryRepository.AddAuthor(author);
+
+            if(!_libraryRepository.Save())
+            {
+                throw new Exception("Creating an author failed on server");
+                //return StatusCode(500,"Unexpected problem occurs, try again later!")
+            }
+
+            var authorDto = AutoMapper.Mapper.Map<AuthorDto>(author);
+
+            //return CreatedAtRoute("GetAuthor", new { id = authorDto.Id });
+
+            return new JsonResult(authorDto);
         }
     }
 }

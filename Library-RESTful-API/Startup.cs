@@ -14,6 +14,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Library_RESTful_API.Helpers;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.Formatters;
 
 namespace Library_RESTful_API
 {
@@ -36,7 +37,11 @@ namespace Library_RESTful_API
             //register repository DI
             services.AddScoped<ILibraryRepository, LibraryRepository>();
 
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+            services.AddMvc(setupAction =>
+            {
+                setupAction.ReturnHttpNotAcceptable = true;         //return 406 for not acceptable data format
+                setupAction.OutputFormatters.Add(new XmlDataContractSerializerOutputFormatter());
+            }).SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
