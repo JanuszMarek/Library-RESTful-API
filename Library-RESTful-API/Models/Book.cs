@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -22,6 +23,7 @@ namespace Library_RESTful_API.Models
         public string Description { get; set; }
 
         [ForeignKey("AuthorId")]
+        [JsonIgnore]
         public Author Author { get; set; }
 
         [BindNever]

@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 namespace Library_RESTful_API.Controllers
 {
     [Route("api/[controller]")]
-    //[ApiController]
+    [ApiController]
     public class AuthorsController : Controller
     {
         private ILibraryRepository _libraryRepository;
@@ -94,11 +94,13 @@ namespace Library_RESTful_API.Controllers
             }
 
             var authorDto = AutoMapper.Mapper.Map<AuthorDto>(author);
-            
+
             //do not working
             //return CreatedAtRoute("GetAuthor", new { id = authorDto.Id });
 
-            return new JsonResult(authorDto);
+
+            //return new JsonResult(authorDto);
+            return CreatedAtAction(nameof(GetAuthor), new { id = authorDto.Id }, author);
         }
     }
 }

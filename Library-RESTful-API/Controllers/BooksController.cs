@@ -75,7 +75,8 @@ namespace Library_RESTful_API.Controllers
 
             var bookDto = AutoMapper.Mapper.Map<BookDto>(book);
 
-            return new JsonResult(bookDto);
+            //return new JsonResult(bookDto);
+            return CreatedAtAction(nameof(GetBookForAutor), new { authorId, bookId = book.Id}, book);
         }
     }
 }
