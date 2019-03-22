@@ -12,6 +12,7 @@ namespace Library_RESTful_API.Models
         IEnumerable<Author> GetAuthors();
         IEnumerable<Author> GetAuthors(IEnumerable<Guid> authorIds);
         void AddAuthor(Author author);
+        void UpdateBookForAuthor(Book book);
         void DeleteAuthor(Author author);
 
         Book GetBookForAuthor(Guid authorId, Guid bookId);

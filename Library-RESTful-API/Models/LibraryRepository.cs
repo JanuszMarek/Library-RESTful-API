@@ -53,6 +53,11 @@ namespace Library_RESTful_API.Models
             }
         }
 
+        public void UpdateBookForAuthor(Book book)
+        {
+            // no code in this implementation
+        }
+
         public void DeleteAuthor(Author author)
         {
             _context.Authors.Remove(author);

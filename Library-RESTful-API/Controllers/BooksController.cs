@@ -79,6 +79,37 @@ namespace Library_RESTful_API.Controllers
             return CreatedAtAction(nameof(GetBookForAutor), new { authorId, bookId = book.Id}, book);
         }
 
+        [HttpPut("{id}")]
+        public IActionResult UpdateBookForAuthor(Guid authorId, Guid id, [FromBody] BookForUpdate book)
+        {
+            if(book == null)
+            {
+                return BadRequest();
+            }
+
+            if (_libraryRepository.AuthorExists(authorId))
+            {
+                return NotFound();
+            }
+
+            var bookForAuthorFromRepo = _libraryRepository.GetBookForAuthor(authorId, id);
+            if (bookForAuthorFromRepo == null) 
+            {
+                return NotFound();
+            }
+
+            AutoMapper.Mapper.Map(book, bookForAuthorFromRepo);
+
+            _libraryRepository.UpdateBookForAuthor(bookForAuthorFromRepo);
+
+            if (!_libraryRepository.Save())
+            {
+                throw new Exception($"Updating book {bookForAuthorFromRepo.Title} for auhtor {bookForAuthorFromRepo.Author.FirstName + " " + bookForAuthorFromRepo.Author.LastName} failed on server");
+            }
+
+            return NoContent();
+        }
+
         [HttpDelete("{id}")]
         public IActionResult DeleteBookForAuthor(Guid authorId, Guid id)
         {
