@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Library_RESTful_API.Helpers;
 using Library_RESTful_API.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Library_RESTful_API.Controllers
@@ -21,12 +22,12 @@ namespace Library_RESTful_API.Controllers
         [HttpPost]
         public IActionResult CreateAuthorCollection([FromBody] IEnumerable<Author> authorCollection)
         {
-            if(authorCollection == null)
+            if (authorCollection == null)
             {
                 return BadRequest();
             }
 
-            foreach(var author in authorCollection)
+            foreach (var author in authorCollection)
             {
                 _libraryRepository.AddAuthor(author);
             }
@@ -41,26 +42,37 @@ namespace Library_RESTful_API.Controllers
             var idsAsString = string.Join(",", authorCollection.Select(a => a.Id));
 
             return CreatedAtAction(nameof(GetAuthorsCollection), new { ids = idsAsString }, authorCollectionToReturn);
-           // return Ok();
+            // return Ok();
         }
 
         [HttpGet("({ids})")]
         public IActionResult GetAuthorsCollection([ModelBinder(BinderType = typeof(ArrayModelBinder))] IEnumerable<Guid> ids)
         {
-            if(ids == null)
+            if (ids == null)
             {
                 return BadRequest();
             }
 
             var authorEntities = _libraryRepository.GetAuthors(ids);
 
-            if(ids.Count() != authorEntities.Count())
+            if (ids.Count() != authorEntities.Count())
             {
                 return NotFound();
             }
 
             var authorsToReturn = AutoMapper.Mapper.Map<IEnumerable<AuthorDto>>(authorEntities);
             return Ok(authorsToReturn);
+        }
+
+        [HttpPost("{id}")]
+        public IActionResult BlockAuthorCreation(Guid id)
+        {
+            if(_libraryRepository.AuthorExists(id))
+            {
+                return new StatusCodeResult(StatusCodes.Status409Conflict);
+            }
+
+            return NotFound();
         }
     }
 }

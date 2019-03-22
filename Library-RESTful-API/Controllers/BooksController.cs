@@ -78,5 +78,29 @@ namespace Library_RESTful_API.Controllers
             //return new JsonResult(bookDto);
             return CreatedAtAction(nameof(GetBookForAutor), new { authorId, bookId = book.Id}, book);
         }
+
+        [HttpDelete("{id}")]
+        public IActionResult DeleteBookForAuthor(Guid authorId, Guid id)
+        {
+            if(_libraryRepository.AuthorExists(authorId))
+            {
+                return NotFound();
+            }
+
+            var bookForAuthorFromRepo = _libraryRepository.GetBookForAuthor(authorId, id);
+            if(bookForAuthorFromRepo == null)
+            {
+                return NotFound();
+            }
+
+            _libraryRepository.DeleteBook(bookForAuthorFromRepo);
+
+            if (!_libraryRepository.Save())
+            {
+                throw new Exception($"Deleting book {bookForAuthorFromRepo.Title} for auhtor {bookForAuthorFromRepo.Author.FirstName + " " + bookForAuthorFromRepo.Author.LastName} failed on server");
+            }
+
+            return NoContent();
+        }
     }
 }

@@ -80,6 +80,11 @@ namespace Library_RESTful_API.Models
             }
         }
 
+        public void DeleteBook(Book book)
+        {
+            _context.Books.Remove(book);
+        }
+
         //GENERALS
         public bool Save()
         {

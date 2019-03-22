@@ -40,7 +40,9 @@ namespace Library_RESTful_API
             services.AddMvc(setupAction =>
             {
                 setupAction.ReturnHttpNotAcceptable = true;         //return 406 for not acceptable data format
+                //accepting input/output data format as XML
                 setupAction.OutputFormatters.Add(new XmlDataContractSerializerOutputFormatter());
+                setupAction.InputFormatters.Add(new XmlDataContractSerializerInputFormatter());
             }).SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }
 
