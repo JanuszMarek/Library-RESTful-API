@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Library_RESTful_API.Helpers;
 using Library_RESTful_API.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -36,7 +37,30 @@ namespace Library_RESTful_API.Controllers
                 //return StatusCode(500,"Unexpected problem occurs, try again later!")
             }
 
-            return Ok();
+            var authorCollectionToReturn = AutoMapper.Mapper.Map<IEnumerable<AuthorDto>>(authorCollection);
+            var idsAsString = string.Join(",", authorCollection.Select(a => a.Id));
+
+            return CreatedAtAction(nameof(GetAuthorsCollection), new { ids = idsAsString }, authorCollectionToReturn);
+           // return Ok();
+        }
+
+        [HttpGet("({ids})")]
+        public IActionResult GetAuthorsCollection([ModelBinder(BinderType = typeof(ArrayModelBinder))] IEnumerable<Guid> ids)
+        {
+            if(ids == null)
+            {
+                return BadRequest();
+            }
+
+            var authorEntities = _libraryRepository.GetAuthors(ids);
+
+            if(ids.Count() != authorEntities.Count())
+            {
+                return NotFound();
+            }
+
+            var authorsToReturn = AutoMapper.Mapper.Map<IEnumerable<AuthorDto>>(authorEntities);
+            return Ok(authorsToReturn);
         }
     }
 }

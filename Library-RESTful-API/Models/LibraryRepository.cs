@@ -16,14 +16,22 @@ namespace Library_RESTful_API.Models
 
 
         //AUTHORS
+        public Author GetAuthor(Guid authorId)
+        {
+            return _context.Authors.FirstOrDefault(a => a.Id == authorId);
+        }
+
         public IEnumerable<Author> GetAuthors()
         {
             return _context.Authors.OrderBy(a => a.LastName).ThenBy(a => a.FirstName);
         }
 
-        public Author GetAuthor(Guid authorId)
+        public IEnumerable<Author> GetAuthors(IEnumerable<Guid> authorIds)
         {
-            return _context.Authors.FirstOrDefault(a => a.Id == authorId);
+            return _context.Authors.Where(a => authorIds.Contains(a.Id))
+                .OrderBy(a => a.FirstName)
+                .OrderBy(a => a.LastName)
+                .ToList();
         }
 
         public bool AuthorExists(Guid authorId)

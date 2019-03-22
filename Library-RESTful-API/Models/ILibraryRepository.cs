@@ -10,6 +10,7 @@ namespace Library_RESTful_API.Models
         bool AuthorExists(Guid authorId);
         Author GetAuthor(Guid id);
         IEnumerable<Author> GetAuthors();
+        IEnumerable<Author> GetAuthors(IEnumerable<Guid> authorIds);
         void AddAuthor(Author author);
 
 
