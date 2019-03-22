@@ -53,6 +53,11 @@ namespace Library_RESTful_API.Models
             }
         }
 
+        public void DeleteAuthor(Author author)
+        {
+            _context.Authors.Remove(author);
+        }
+
 
         //BOOKS
         public Book GetBookForAuthor(Guid authorId, Guid bookId)

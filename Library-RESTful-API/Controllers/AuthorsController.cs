@@ -102,5 +102,24 @@ namespace Library_RESTful_API.Controllers
             //return new JsonResult(authorDto);
             return CreatedAtAction(nameof(GetAuthor), new { id = authorDto.Id }, author);
         }
+
+        [HttpDelete("{id}")]
+        public IActionResult DeleteAutor(Guid id)
+        {
+            var authorFromRepo = _libraryRepository.GetAuthor(id);
+            if(authorFromRepo == null)
+            {
+                return NotFound();
+            }
+
+            _libraryRepository.DeleteAuthor(authorFromRepo);
+
+            if (!_libraryRepository.Save())
+            {
+                throw new Exception($"Deleting  auhtor {authorFromRepo.FirstName + " " + authorFromRepo.LastName} failed on server");
+            }
+
+            return NoContent();
+        }
     }
 }
