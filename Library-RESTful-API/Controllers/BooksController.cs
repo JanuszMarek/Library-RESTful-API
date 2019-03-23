@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Library_RESTful_API.Models;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Library_RESTful_API.Controllers
@@ -79,27 +80,41 @@ namespace Library_RESTful_API.Controllers
             return CreatedAtAction(nameof(GetBookForAutor), new { authorId, bookId = book.Id}, book);
         }
 
-        [HttpPut("{id}")]
-        public IActionResult UpdateBookForAuthor(Guid authorId, Guid id, [FromBody] BookForUpdate book)
+        //FULLY UPDATE
+        [HttpPut("{bookid}")]
+        public IActionResult UpdateBookForAuthor(Guid authorId, Guid bookid, [FromBody] BookForUpdate book)
         {
             if(book == null)
             {
                 return BadRequest();
             }
 
-            if (_libraryRepository.AuthorExists(authorId))
+            if (!_libraryRepository.AuthorExists(authorId))
             {
                 return NotFound();
             }
 
-            var bookForAuthorFromRepo = _libraryRepository.GetBookForAuthor(authorId, id);
+            //if book not exist, create book
+            var bookForAuthorFromRepo = _libraryRepository.GetBookForAuthor(authorId, bookid);
             if (bookForAuthorFromRepo == null) 
             {
-                return NotFound();
+                // return NotFound();
+                var bookToAdd = AutoMapper.Mapper.Map<Book>(book);
+                bookToAdd.Id = bookid;
+
+                _libraryRepository.AddBookForAuthor(authorId, bookToAdd);
+                if (!_libraryRepository.Save())
+                {
+                    throw new Exception($"Upserting book {bookForAuthorFromRepo.Title} for auhtor {bookForAuthorFromRepo.Author.FirstName + " " + bookForAuthorFromRepo.Author.LastName} failed on server");
+                }
+
+                var bookToReturn = AutoMapper.Mapper.Map<BookDto>(bookToAdd);
+
+                return CreatedAtAction(nameof(GetBookForAutor), new { authorId, bookId = bookid }, bookToReturn);
             }
 
-            AutoMapper.Mapper.Map(book, bookForAuthorFromRepo);
 
+            AutoMapper.Mapper.Map(book, bookForAuthorFromRepo);
             _libraryRepository.UpdateBookForAuthor(bookForAuthorFromRepo);
 
             if (!_libraryRepository.Save())
@@ -110,10 +125,50 @@ namespace Library_RESTful_API.Controllers
             return NoContent();
         }
 
+
+        [HttpPatch("{id}")]
+        public IActionResult PartiallyUpdateBookForAuthor(Guid authorId, Guid id,[FromBody] JsonPatchDocument<BookForUpdate> patchDoc)
+        {
+            if(patchDoc == null)
+            {
+                return BadRequest();
+            }
+
+            if (!_libraryRepository.AuthorExists(authorId))
+            {
+                return NotFound();
+            }
+
+            var bookForAuthorFromRepo = _libraryRepository.GetBookForAuthor(authorId, id);
+            if (bookForAuthorFromRepo == null)
+            {
+                return NotFound();
+            }
+
+            var bookToPatch = AutoMapper.Mapper.Map<BookForUpdate>(bookForAuthorFromRepo);
+
+            patchDoc.ApplyTo(bookToPatch);
+
+            //add validation
+
+            AutoMapper.Mapper.Map(bookToPatch, bookForAuthorFromRepo);
+
+            _libraryRepository.UpdateBookForAuthor(bookForAuthorFromRepo);
+
+            if (!_libraryRepository.Save())
+            {
+                throw new Exception($"Patching book {bookForAuthorFromRepo.Title} for auhtor {bookForAuthorFromRepo.Author.FirstName + " " + bookForAuthorFromRepo.Author.LastName} failed on server");
+            }
+
+
+            return NoContent();
+        }
+
+
         [HttpDelete("{id}")]
         public IActionResult DeleteBookForAuthor(Guid authorId, Guid id)
         {
-            if(_libraryRepository.AuthorExists(authorId))
+            if(!_libraryRepository.AuthorExists(authorId))
             {
                 return NotFound();
             }

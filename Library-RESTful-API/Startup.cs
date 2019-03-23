@@ -74,6 +74,7 @@ namespace Library_RESTful_API
                     .ForMember(dest => dest.Age, opt => opt.MapFrom(src => src.DateOfBirth.GetCurentAge()));
                 cfd.CreateMap<Book, BookDto>();
                 cfd.CreateMap<BookForUpdate, Book>();
+                cfd.CreateMap<Book, BookForUpdate>();
             });
 
 
