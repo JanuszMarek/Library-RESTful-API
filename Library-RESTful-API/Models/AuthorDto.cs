@@ -11,5 +11,7 @@ namespace Library_RESTful_API.Models
         public string Name { get; set; }
         public int Age { get; set; }
         public string Genre { get; set; }
+
+        public ICollection<Book> Books { get; set; } = new List<Book>();
     }
 }

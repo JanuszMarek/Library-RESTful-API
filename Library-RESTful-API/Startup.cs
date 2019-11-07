@@ -88,9 +88,11 @@ namespace Library_RESTful_API
                 cfd.CreateMap<Author, AuthorDto>()
                     .ForMember(dest => dest.Name, opt => opt.MapFrom(src => $"{src.FirstName} {src.LastName}"))
                     .ForMember(dest => dest.Age, opt => opt.MapFrom(src => src.DateOfBirth.GetCurentAge()));
+                cfd.CreateMap<AuthorForCreateDto, Author>();
+                cfd.CreateMap<AuthorForUpdateDto, Author>();
                 cfd.CreateMap<Book, BookDto>();
-                cfd.CreateMap<BookForUpdateDto, Book>();
-                cfd.CreateMap<Book, BookForUpdateDto>();
+                cfd.CreateMap<BookBaseDto, Book>();
+                cfd.CreateMap<Book, BookBaseDto>();
             });
 
 

@@ -38,7 +38,7 @@ namespace Library_RESTful_API.Controllers
                 //return StatusCode(500,"Unexpected problem occurs, try again later!")
             }
 
-            var authorCollectionToReturn = AutoMapper.Mapper.Map<IEnumerable<AuthorDto>>(authorCollection);
+            var authorCollectionToReturn = AutoMapper.Mapper.Map<IEnumerable<AuthorBaseDto>>(authorCollection);
             var idsAsString = string.Join(",", authorCollection.Select(a => a.Id));
 
             return CreatedAtAction(nameof(GetAuthorsCollection), new { ids = idsAsString }, authorCollectionToReturn);
@@ -60,7 +60,7 @@ namespace Library_RESTful_API.Controllers
                 return NotFound();
             }
 
-            var authorsToReturn = AutoMapper.Mapper.Map<IEnumerable<AuthorDto>>(authorEntities);
+            var authorsToReturn = AutoMapper.Mapper.Map<IEnumerable<AuthorBaseDto>>(authorEntities);
             return Ok(authorsToReturn);
         }
 

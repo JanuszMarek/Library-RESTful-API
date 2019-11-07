@@ -78,12 +78,21 @@ namespace Library_RESTful_API.Controllers
         }
 
         [HttpPost]
-        public IActionResult CreateAuthor([FromBody] Author author)
+        public IActionResult CreateAuthor([FromBody] AuthorForCreateDto authorForCreateDto)
         {
-            if(author == null)
+            if(authorForCreateDto == null)
             {
                 return BadRequest();
             }
+
+            TryValidateModel(authorForCreateDto);
+
+            if(!ModelState.IsValid)
+            {
+                return new UnprocessableEntityObjectResult(ModelState);
+            }
+
+            var author = AutoMapper.Mapper.Map<Author>(authorForCreateDto);
 
             _libraryRepository.AddAuthor(author);
 
