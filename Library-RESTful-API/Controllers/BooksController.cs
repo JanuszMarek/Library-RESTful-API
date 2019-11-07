@@ -54,17 +54,29 @@ namespace Library_RESTful_API.Controllers
         }
 
         [HttpPost]
-        public IActionResult AddBookForAuthor(Guid authorId, [FromBody] Book book)
+        public IActionResult AddBookForAuthor(Guid authorId, [FromBody] BookForCreateDto bookforCreateDto)
         {
-            if(book == null)
+            if(bookforCreateDto == null)
             {
                 return BadRequest();
             }
 
-            if(!_libraryRepository.AuthorExists(authorId))
+            if(bookforCreateDto.Description == bookforCreateDto.Title)
+            {
+                ModelState.AddModelError(nameof(BookForCreateDto), "Title is equal to Description");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return new UnprocessableEntityObjectResult(ModelState);
+            }
+
+            if (!_libraryRepository.AuthorExists(authorId))
             {
                 return NotFound();
             }
+
+            var book = AutoMapper.Mapper.Map<Book>(bookforCreateDto);
 
             _libraryRepository.AddBookForAuthor(authorId, book);
 
@@ -82,11 +94,16 @@ namespace Library_RESTful_API.Controllers
 
         //FULLY UPDATE
         [HttpPut("{bookid}")]
-        public IActionResult UpdateBookForAuthor(Guid authorId, Guid bookid, [FromBody] BookForUpdate book)
+        public IActionResult UpdateBookForAuthor(Guid authorId, Guid bookid, [FromBody] BookForUpdateDto book)
         {
             if(book == null)
             {
                 return BadRequest();
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return new UnprocessableEntityObjectResult(ModelState);
             }
 
             if (!_libraryRepository.AuthorExists(authorId))
@@ -94,6 +111,7 @@ namespace Library_RESTful_API.Controllers
                 return NotFound();
             }
 
+            //Upserting
             //if book not exist, create book
             var bookForAuthorFromRepo = _libraryRepository.GetBookForAuthor(authorId, bookid);
             if (bookForAuthorFromRepo == null) 
@@ -119,15 +137,14 @@ namespace Library_RESTful_API.Controllers
 
             if (!_libraryRepository.Save())
             {
-                throw new Exception($"Updating book {bookForAuthorFromRepo.Title} for auhtor {bookForAuthorFromRepo.Author.FirstName + " " + bookForAuthorFromRepo.Author.LastName} failed on server");
+                throw new Exception($"Updating book {bookForAuthorFromRepo.Title} for author {bookForAuthorFromRepo.Author.FirstName + " " + bookForAuthorFromRepo.Author.LastName} failed on server");
             }
 
             return NoContent();
         }
-
-
+        
         [HttpPatch("{id}")]
-        public IActionResult PartiallyUpdateBookForAuthor(Guid authorId, Guid id,[FromBody] JsonPatchDocument<BookForUpdate> patchDoc)
+        public IActionResult PartiallyUpdateBookForAuthor(Guid authorId, Guid id,[FromBody] JsonPatchDocument<BookForUpdateDto> patchDoc)
         {
             if(patchDoc == null)
             {
@@ -145,13 +162,18 @@ namespace Library_RESTful_API.Controllers
                 return NotFound();
             }
 
-            var bookToPatch = AutoMapper.Mapper.Map<BookForUpdate>(bookForAuthorFromRepo);
+            var bookToPatch = AutoMapper.Mapper.Map<BookForUpdateDto>(bookForAuthorFromRepo);
 
-            patchDoc.ApplyTo(bookToPatch);
-
-            //add validation
+            patchDoc.ApplyTo(bookToPatch, ModelState);
 
             AutoMapper.Mapper.Map(bookToPatch, bookForAuthorFromRepo);
+
+            TryValidateModel(bookToPatch);
+
+            if (!ModelState.IsValid)
+            {
+                return new UnprocessableEntityObjectResult(ModelState);
+            }
 
             _libraryRepository.UpdateBookForAuthor(bookForAuthorFromRepo);
 
@@ -159,7 +181,6 @@ namespace Library_RESTful_API.Controllers
             {
                 throw new Exception($"Patching book {bookForAuthorFromRepo.Title} for auhtor {bookForAuthorFromRepo.Author.FirstName + " " + bookForAuthorFromRepo.Author.LastName} failed on server");
             }
-
 
             return NoContent();
         }
