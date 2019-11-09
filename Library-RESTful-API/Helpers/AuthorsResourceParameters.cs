@@ -24,5 +24,9 @@ namespace Library_RESTful_API.Helpers
                 _pageSize = (value > maxPageSize) ? maxPageSize : value;
             }
         }
+
+        public string Genre { get; set; }
+
+        public string SearchQuery { get; set; }
     }
 }

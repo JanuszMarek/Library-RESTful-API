@@ -26,7 +26,24 @@ namespace Library_RESTful_API.Models
         {
             var authors = _context.Authors
                 .OrderBy(a => a.LastName)
-                .ThenBy(a => a.FirstName);
+                .ThenBy(a => a.FirstName).AsQueryable();
+
+            if (!string.IsNullOrEmpty(authorsResourceParameters.Genre))
+            {
+                //trim and ignore casing
+                var genre = authorsResourceParameters.Genre.Trim().ToLowerInvariant();
+                authors = authors.Where(a => a.Genre.ToLowerInvariant() == genre);
+            }
+
+            if (!string.IsNullOrEmpty(authorsResourceParameters.SearchQuery))
+            {
+                //trim and ignore casing
+                var search = authorsResourceParameters.SearchQuery.Trim().ToLowerInvariant();
+                authors = authors.Where(a =>
+                a.Genre.ToLowerInvariant().Contains(search) ||
+                a.FirstName.ToLowerInvariant().Contains(search) ||
+                a.LastName.ToLowerInvariant().Contains(search));
+            }
 
             return PagedList<Author>.Create(authors, authorsResourceParameters.PageNumber, authorsResourceParameters.PageSize);
         }
