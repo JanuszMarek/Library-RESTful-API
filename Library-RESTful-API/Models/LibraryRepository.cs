@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Library_RESTful_API.Helpers;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -21,9 +22,13 @@ namespace Library_RESTful_API.Models
             return _context.Authors.FirstOrDefault(a => a.Id == authorId);
         }
 
-        public IEnumerable<Author> GetAuthors()
+        public PagedList<Author> GetAuthors(AuthorsResourceParameters authorsResourceParameters)
         {
-            return _context.Authors.OrderBy(a => a.LastName).ThenBy(a => a.FirstName);
+            var authors = _context.Authors
+                .OrderBy(a => a.LastName)
+                .ThenBy(a => a.FirstName);
+
+            return PagedList<Author>.Create(authors, authorsResourceParameters.PageNumber, authorsResourceParameters.PageSize);
         }
 
         public IEnumerable<Author> GetAuthors(IEnumerable<Guid> authorIds)

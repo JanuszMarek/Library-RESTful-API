@@ -6,6 +6,7 @@ using Library_RESTful_API.Helpers;
 using Library_RESTful_API.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Newtonsoft.Json;
 
 namespace Library_RESTful_API.Controllers
 {
@@ -14,17 +15,45 @@ namespace Library_RESTful_API.Controllers
     public class AuthorsController : Controller
     {
         private ILibraryRepository _libraryRepository;
+        private IUrlHelper _urlHelper;
 
-        public AuthorsController(ILibraryRepository libraryRepository)
+        public AuthorsController(ILibraryRepository libraryRepository, IUrlHelper urlHelper)
         {
             _libraryRepository = libraryRepository;
+            _urlHelper = urlHelper;
         }
 
-        [HttpGet()]
-        public IActionResult GetAuthors()
+        private string CreateAuthorsResourceUrl(AuthorsResourceParameters authorsResourceParameters, ResourceUriType type)
         {
-            var repoAuthors = _libraryRepository.GetAuthors();
+            switch(type)
+            {
+                case ResourceUriType.PreviousPage:
+                    return _urlHelper.Link("GetAuthors",
+                        new
+                        {
+                            pageNumber = authorsResourceParameters.PageNumber - 1,
+                            pageSize = authorsResourceParameters.PageSize
+                        });
+                case ResourceUriType.NextPage:
+                    return _urlHelper.Link("GetAuthors",
+                        new
+                        {
+                            pageNumber = authorsResourceParameters.PageNumber + 1,
+                            pageSize = authorsResourceParameters.PageSize
+                        });
+                default:
+                    return _urlHelper.Link("GetAuthors",
+                        new
+                        {
+                            pageNumber = authorsResourceParameters.PageNumber,
+                            pageSize = authorsResourceParameters.PageSize
+                        });
+            }
+        }
 
+        [HttpGet(Name = nameof(GetAuthors))]
+        public IActionResult GetAuthors([FromQuery] AuthorsResourceParameters authorsResourceParameters)
+        {
             /* Slow and errorprone method
             var authors = new List<AuthorDto>();
             foreach(var auth in repoAuthors)
@@ -54,6 +83,15 @@ namespace Library_RESTful_API.Controllers
             }
             */
 
+            var repoAuthors = _libraryRepository.GetAuthors(authorsResourceParameters);
+
+            var previousPageLink = repoAuthors.HasPrevious ? CreateAuthorsResourceUrl(authorsResourceParameters, ResourceUriType.PreviousPage) : null;
+            var nextPageLink = repoAuthors.HasNext ? CreateAuthorsResourceUrl(authorsResourceParameters, ResourceUriType.NextPage) : null;
+
+            var paginationMetaData = new PaginationMetaData(repoAuthors, previousPageLink, nextPageLink);
+
+
+            Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(paginationMetaData));
 
             var authors = AutoMapper.Mapper.Map<IEnumerable<AuthorDto>>(repoAuthors);
             return new JsonResult(authors);

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Library_RESTful_API.Helpers;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -9,7 +10,7 @@ namespace Library_RESTful_API.Models
     {
         bool AuthorExists(Guid authorId);
         Author GetAuthor(Guid id);
-        IEnumerable<Author> GetAuthors();
+        PagedList<Author> GetAuthors(AuthorsResourceParameters authorsResourceParameters);
         IEnumerable<Author> GetAuthors(IEnumerable<Guid> authorIds);
         void AddAuthor(Author author);
         void UpdateBookForAuthor(Book book);

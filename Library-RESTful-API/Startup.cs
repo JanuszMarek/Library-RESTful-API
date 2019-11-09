@@ -17,6 +17,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.AspNetCore.Diagnostics;
 using NLog.Extensions.Logging;
+using Microsoft.AspNetCore.Mvc.Routing;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 
 namespace Library_RESTful_API
 {
@@ -38,6 +40,15 @@ namespace Library_RESTful_API
 
             //register repository DI
             services.AddScoped<ILibraryRepository, LibraryRepository>();
+
+            //register Context Accesor neccessary to UrlHelper
+            services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
+            //register URL Helper
+            services.AddScoped<IUrlHelper, UrlHelper>(implementationFactory =>
+            {
+                var actionContext = implementationFactory.GetService<IActionContextAccessor>().ActionContext;
+                return new UrlHelper(actionContext);
+            });
 
             services.AddMvc(setupAction =>
             {
