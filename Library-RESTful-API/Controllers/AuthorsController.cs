@@ -17,11 +17,13 @@ namespace Library_RESTful_API.Controllers
     {
         private ILibraryRepository _libraryRepository;
         private IUrlHelper _urlHelper;
+        private IPropertyMappingService _propertyMappingService;
 
-        public AuthorsController(ILibraryRepository libraryRepository, IUrlHelper urlHelper)
+        public AuthorsController(ILibraryRepository libraryRepository, IUrlHelper urlHelper, IPropertyMappingService propertyMappingService)
         {
             _libraryRepository = libraryRepository;
             _urlHelper = urlHelper;
+            _propertyMappingService = propertyMappingService;
         }
 
         private string CreateAuthorsResourceUrl(AuthorsResourceParameters authorsResourceParameters, ResourceUriType type)
@@ -92,6 +94,11 @@ namespace Library_RESTful_API.Controllers
                 return StatusCode(500, "An unexpected fault happend. Please try again later!");
             }
             */
+
+            if(!_propertyMappingService.ValidMappingExistsFor<AuthorDto, Author>(authorsResourceParameters.OrderBy))
+            {
+                return BadRequest();
+            }
 
             var repoAuthors = _libraryRepository.GetAuthors(authorsResourceParameters);
 

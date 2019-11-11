@@ -36,5 +36,39 @@ namespace Library_RESTful_API.Services
 
             throw new Exception();
         }
+
+        public bool ValidMappingExistsFor<TSource, TDestination>(string fields)
+        {
+            var propertyMapping = GetPropertyMapping<TSource, TDestination>();
+
+            if (string.IsNullOrWhiteSpace(fields))
+            {
+                return true;
+            }
+
+            //spli strings with ','
+
+            //string is seprated by ',' so split it
+            var fieldsSplited = fields.Split(',');
+
+            //apply orderby in reverse order
+            //otherwise IQueryable will be ordered in wrong order
+            foreach (var field in fieldsSplited)
+            {
+                //triming
+                var trimmedField = field.Trim();
+
+                //remove " asc" and " desc" from query
+                var indexOfFirstSpace = trimmedField.IndexOf(" ");
+                var propertyName = indexOfFirstSpace == -1 ? trimmedField : trimmedField.Remove(indexOfFirstSpace);
+
+                //checking property
+                if (!propertyMapping.ContainsKey(propertyName))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
     }
 }
