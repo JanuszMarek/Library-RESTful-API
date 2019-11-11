@@ -1,21 +1,23 @@
 ﻿using Library_RESTful_API.Helpers;
+using Library_RESTful_API.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Library_RESTful_API.Models
+namespace Library_RESTful_API.Services
 {
     public class LibraryRepository : ILibraryRepository
     {
         private LibraryContext _context;
+        private IPropertyMappingService _propertyMappingService;
 
-        public LibraryRepository(LibraryContext context)
+        public LibraryRepository(LibraryContext context, IPropertyMappingService propertyMappingService)
         {
             _context = context;
+            _propertyMappingService = propertyMappingService;
         }
-
-
+        
         //AUTHORS
         public Author GetAuthor(Guid authorId)
         {
@@ -24,9 +26,11 @@ namespace Library_RESTful_API.Models
 
         public PagedList<Author> GetAuthors(AuthorsResourceParameters authorsResourceParameters)
         {
-            var authors = _context.Authors
-                .OrderBy(a => a.LastName)
-                .ThenBy(a => a.FirstName).AsQueryable();
+            //var authors = _context.Authors
+            //    .OrderBy(a => a.LastName)
+            //    .ThenBy(a => a.FirstName).AsQueryable();
+
+            var authors = _context.Authors.ApplySort(authorsResourceParameters.OrderBy, _propertyMappingService.GetPropertyMapping<AuthorDto, Author>());
 
             if (!string.IsNullOrEmpty(authorsResourceParameters.Genre))
             {

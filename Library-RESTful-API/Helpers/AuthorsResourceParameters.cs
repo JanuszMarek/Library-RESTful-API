@@ -28,5 +28,7 @@ namespace Library_RESTful_API.Helpers
         public string Genre { get; set; }
 
         public string SearchQuery { get; set; }
+
+        public string OrderBy { get; set; } = "Name";
     }
 }

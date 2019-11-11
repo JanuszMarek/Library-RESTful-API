@@ -19,6 +19,7 @@ using Microsoft.AspNetCore.Diagnostics;
 using NLog.Extensions.Logging;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Library_RESTful_API.Services;
 
 namespace Library_RESTful_API
 {
@@ -49,6 +50,8 @@ namespace Library_RESTful_API
                 var actionContext = implementationFactory.GetService<IActionContextAccessor>().ActionContext;
                 return new UrlHelper(actionContext);
             });
+
+            services.AddTransient<IPropertyMappingService, PropertyMappingService>();
 
             services.AddMvc(setupAction =>
             {
