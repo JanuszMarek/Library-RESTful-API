@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Library_RESTful_API.Models
 {
-    public class BookDto
+    public class BookDto : LinkedResourceBaseDto
     {
         public Guid Id { get; set; }
 
